@@ -24,7 +24,9 @@ use clap::Parser;
 use gvm_mcp::config::{Cli, Config};
 use gvm_mcp::mcp::GvmMcpServer;
 use gvm_mcp::mcp::tools::agents::{AgentInstallerInstructionParams, CreateAgentGroupParams};
-use gvm_mcp::mcp::tools::alerts::{CreateAlertParams, UpdateAlertParams};
+use gvm_mcp::mcp::tools::alerts::{
+    AlertCondition, AlertEvent, AlertMethod, CreateAlertParams, UpdateAlertParams,
+};
 use gvm_mcp::mcp::tools::assets::{
     AssetByIdParams, CreateHostParams, ListAssetsParams, UpdateAssetParams, UpdateCommentParams,
 };
@@ -32,7 +34,9 @@ use gvm_mcp::mcp::tools::common::{
     DeleteParams, FilterParams, GetByIdParams, ListParams, PageParams, TrashListParams,
 };
 use gvm_mcp::mcp::tools::compliance::{CreatePolicyParams, UpdatePolicyParams};
-use gvm_mcp::mcp::tools::credentials::{CreateCredentialParams, UpdateCredentialParams};
+use gvm_mcp::mcp::tools::credentials::{
+    CreateCredentialParams, CredentialType, UpdateCredentialParams,
+};
 use gvm_mcp::mcp::tools::feeds::ListFeedsParams;
 use gvm_mcp::mcp::tools::filters::{CreateFilterParams, UpdateFilterParams};
 use gvm_mcp::mcp::tools::identity::{
@@ -925,7 +929,7 @@ async fn e2e_02_resource_lifecycles() {
     let cred = must(
         &mcp.create_credential(Parameters(CreateCredentialParams {
             name: unique("cred"),
-            credential_type: "up".into(),
+            credential_type: CredentialType::Up,
             comment: None,
             login: Some("scanner".into()),
             password: Some("e2e-not-a-real-password".into()),
@@ -1051,9 +1055,9 @@ async fn e2e_02_resource_lifecycles() {
     let alert = must(
         &mcp.create_alert(Parameters(CreateAlertParams {
             name: unique("alert"),
-            event: "task_run_status_changed".into(),
-            condition: "always".into(),
-            method: "syslog".into(),
+            event: AlertEvent::TaskRunStatusChanged,
+            condition: AlertCondition::Always,
+            method: AlertMethod::Syslog,
             comment: None,
             event_data: Some(BTreeMap::from([("status".to_string(), "Done".to_string())])),
             condition_data: None,

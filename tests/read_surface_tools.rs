@@ -236,7 +236,14 @@ async fn results_list_summarizes() {
             "id": "r-1", "name": "OpenSSH < 8.0", "host": "10.0.0.5",
             "port": "22/tcp", "severity": 7.5, "threat": "High",
             "description": "very long finding text...",
-            "nvt": {"oid": "1.3.6.1", "name": "OpenSSH check"},
+            "qod": {"value": 95, "type": "remote_vul"},
+            "nvt": {
+                "oid": "1.3.6.1", "name": "OpenSSH check",
+                "epss": {
+                    "maxEpss": {"score": 0.91, "percentile": 98.0, "cve": "CVE-2026-1"},
+                    "maxSeverity": {"score": 0.72, "percentile": 90.0, "cve": "CVE-2026-2", "severity": 9.8}
+                }
+            },
             "occurrences": 2
         }),
     )
@@ -248,8 +255,8 @@ async fn results_list_summarizes() {
     assert_row(
         &result,
         "results",
-        &["id", "host", "severity", "threat"],
-        &["description", "nvt"],
+        &["id", "host", "severity", "threat", "qod", "nvt"],
+        &["description"],
     );
 }
 
@@ -398,7 +405,11 @@ async fn nvts_search_get_and_families() {
             "oid": "1.3.6.1.4.1.25623.1.0.100315", "name": "OpenSSH check",
             "family": "Gain a shell remotely", "severity": 7.5,
             "cvssBase": "7.5", "solutionType": "VendorFix",
-            "tags": "cvss_base_vector=AV:N..."
+            "tags": "cvss_base_vector=AV:N...",
+            "epss": {
+                "maxEpss": {"score": 0.91, "percentile": 98.0, "cve": "CVE-2026-1"},
+                "maxSeverity": {"score": 0.72, "percentile": 90.0, "cve": "CVE-2026-2", "severity": 9.8}
+            }
         }),
     )
     .await;
@@ -424,7 +435,7 @@ async fn nvts_search_get_and_families() {
     assert_row(
         &nvts,
         "nvts",
-        &["oid", "name", "family", "severity"],
+        &["oid", "name", "family", "severity", "epss"],
         &["tags"],
     );
 

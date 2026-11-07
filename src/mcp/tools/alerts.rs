@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::CallToolResult;
 use rmcp::{ErrorData as McpError, schemars, tool, tool_router};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::mcp::server::GvmMcpServer;
 
@@ -77,9 +77,9 @@ impl GvmMcpServer {
     ) -> Result<CallToolResult, McpError> {
         let body = Body::new()
             .set("name", params.name)
-            .set("event", params.event)
-            .set("condition", params.condition)
-            .set("method", params.method)
+            .set_json("event", params.event)
+            .set_json("condition", params.condition)
+            .set_json("method", params.method)
             .set_opt("comment", params.comment)
             .set_opt("eventData", data_map(params.event_data))
             .set_opt("conditionData", data_map(params.condition_data))
@@ -138,6 +138,45 @@ impl GvmMcpServer {
     }
 }
 
+/// Events accepted by the gateway's create-alert request contract.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertEvent {
+    TaskRunStatusChanged,
+    UpdatedSecinfo,
+    NewSecinfo,
+}
+
+/// Conditions accepted by the gateway's create-alert request contract.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertCondition {
+    Always,
+    FilterCountAtLeast,
+    FilterCountChanged,
+    SeverityAtLeast,
+    SeverityChanged,
+}
+
+/// Methods accepted by the gateway's create-alert request contract.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AlertMethod {
+    Email,
+    HttpGet,
+    Scp,
+    SendEmail,
+    Smb,
+    Snmp,
+    SourcefireConnector,
+    StartTask,
+    Syslog,
+    Tippingpoint,
+    VeriniceCe,
+    VeriniceNet,
+    Alemba,
+}
+
 /// Arguments for `openvas_create_alert`.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct CreateAlertParams {
@@ -145,14 +184,14 @@ pub struct CreateAlertParams {
     pub name: String,
     /// Trigger event: task_run_status_changed, updated_secinfo or
     /// new_secinfo
-    pub event: String,
+    pub event: AlertEvent,
     /// Trigger condition: always, filter_count_at_least,
     /// filter_count_changed, severity_at_least or severity_changed
-    pub condition: String,
+    pub condition: AlertCondition,
     /// Delivery method: email, http_get, scp, send_email, smb, snmp,
     /// sourcefire_connector, start_task, syslog, tippingpoint, verinice_ce,
     /// verinice_net or alemba
-    pub method: String,
+    pub method: AlertMethod,
     /// Optional comment
     pub comment: Option<String>,
     /// Event parameters, e.g. {"status": "Done"}

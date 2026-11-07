@@ -14,7 +14,8 @@ use crate::mcp::error::gateway_tool_error;
 use crate::mcp::server::GvmMcpServer;
 
 use super::common::{
-    Body, DeleteParams, GetByIdParams, ListParams, clone_resource, json_result, update_resource,
+    Body, DeleteParams, GetByIdParams, ListParams, clone_resource, deserialize_optional_non_null,
+    json_result, update_resource,
 };
 
 /// Summarized list row: compact on purpose (LLM token budget). Full details
@@ -120,7 +121,10 @@ pub struct UpdateTaskParams {
     /// Replacement alert UUIDs
     pub alert_ids: Option<Vec<String>>,
     pub alterable: Option<bool>,
-    /// Replacement observer login names
+    /// Replacement observer login names. Omit to preserve, use `[]` to clear;
+    /// explicit `null` is invalid.
+    #[serde(default, deserialize_with = "deserialize_optional_non_null")]
+    #[schemars(with = "Vec<String>")]
     pub observers: Option<Vec<String>>,
     pub schedule_periods: Option<i32>,
     /// Key-value scan preferences
