@@ -155,7 +155,7 @@ Update a compliance audit. Idempotent (PUT): omitted fields stay unchanged.
 | `comment` | string | no |  |
 | `id` | string | yes | UUID of the task to update |
 | `name` | string | no |  |
-| `observers` | array<string> | no | Replacement observer login names |
+| `observers` | array<string> | no | Replacement observer login names. Omit to preserve, use `[]` to clear; explicit `null` is invalid. (default `None`) |
 | `preferences` | object<string, string> | no | Key-value scan preferences |
 | `scan_config_id` | string | no | Replacement scan config UUID |
 | `scanner_id` | string | no | Replacement scanner UUID |

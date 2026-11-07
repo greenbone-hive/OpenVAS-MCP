@@ -18,6 +18,7 @@ const ROW_KEYS: &[&str] = &[
     "severity",
     "cvssBase",
     "solutionType",
+    "epss",
 ];
 
 /// Arguments for `openvas_get_nvt` (NVTs are addressed by OID, not UUID).
