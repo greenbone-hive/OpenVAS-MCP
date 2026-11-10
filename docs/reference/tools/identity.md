@@ -57,7 +57,7 @@ Create a gvmd user account. Not idempotent.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `authentication_type` | string | no | Authentication backend: file, ldap_connect or radius_connect |
+| `authentication_type` | string (`file`, `ldap_connect`, `radius_connect`) | no | Authentication backend: file, ldap_connect or radius_connect (default `None`) |
 | `comment` | string | no | Optional comment |
 | `hosts` | string | no | Host restriction expression as stored by gvmd |
 | `name` | string | yes | Login name |
@@ -269,7 +269,7 @@ Update a user account (password, roles, host restriction). Idempotent (PUT): omi
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `authentication_type` | string | no |  |
+| `authentication_type` | string (`file`, `ldap_connect`, `radius_connect`) | no | (default `None`) |
 | `comment` | string | no |  |
 | `hosts` | string | no |  |
 | `id` | string | yes | UUID of the user to update |

@@ -163,7 +163,7 @@ impl GvmMcpServer {
     ) -> Result<CallToolResult, McpError> {
         let body = Body::new()
             .set("name", params.name)
-            .set("type", params.credential_type)
+            .set_json("type", params.credential_type)
             .set_opt("comment", params.comment)
             .set_opt("login", params.login)
             .set_opt("password", params.password)
@@ -246,6 +246,25 @@ impl GvmMcpServer {
     }
 }
 
+/// Credential kinds accepted by the gateway's create request contract.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CredentialType {
+    Cc,
+    Pw,
+    Snmp,
+    Snmpv3,
+    Up,
+    Usk,
+    CsCc,
+    CsPw,
+    CsPgp,
+    CsSmime,
+    CsSnmp,
+    CsUp,
+    CsUsk,
+}
+
 /// Arguments for `openvas_create_credential`.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
 pub struct CreateCredentialParams {
@@ -256,7 +275,7 @@ pub struct CreateCredentialParams {
     /// or store-backed cs_up, cs_usk, cs_cc, cs_pw, cs_pgp, cs_smime,
     /// cs_snmp
     #[serde(rename = "type")]
-    pub credential_type: String,
+    pub credential_type: CredentialType,
     /// Optional comment
     pub comment: Option<String>,
     /// Login/username (up, usk, snmp, snmpv3)

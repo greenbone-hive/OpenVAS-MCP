@@ -20,7 +20,7 @@ use gvm_mcp::mcp::tools::common::{
 };
 use gvm_mcp::mcp::tools::compliance::{CreatePolicyParams, UpdatePolicyParams};
 use gvm_mcp::mcp::tools::credentials::{
-    CreateCredentialParams, CredentialStorePreference, UpdateCredentialStoreParams,
+    CreateCredentialParams, CredentialStorePreference, CredentialType, UpdateCredentialStoreParams,
 };
 use gvm_mcp::mcp::tools::feeds::ListFeedsParams;
 use gvm_mcp::mcp::tools::filters::{CreateFilterParams, UpdateFilterParams};
@@ -756,7 +756,7 @@ async fn store_backed_credential_sends_store_fields() {
     let result = mcp
         .create_credential(Parameters(CreateCredentialParams {
             name: "vault-ssh".into(),
-            credential_type: "cs_up".into(),
+            credential_type: CredentialType::CsUp,
             comment: None,
             login: None,
             password: None,
@@ -850,7 +850,7 @@ async fn credential_store_admin_routes() {
 #[tokio::test]
 async fn report_pages_keep_their_spec_row_keys() {
     let (server, mcp) = server().await;
-    let pages: [(&str, serde_json::Value, &str, &str); 8] = [
+    let pages: [(&str, serde_json::Value, &str, &str); 9] = [
         (
             "hosts",
             serde_json::json!({"id": "h", "name": "10.0.0.5", "severity": 7.5, "extra": 1}),
@@ -899,6 +899,22 @@ async fn report_pages_keep_their_spec_row_keys() {
             "vulnerabilities",
             "nvt",
         ),
+        (
+            "results",
+            serde_json::json!({
+                "id": "r", "name": "OpenSSH", "host": "10.0.0.5", "port": "22/tcp",
+                "severity": 7.5, "threat": "High", "qod": {"value": 95, "type": "remote_vul"},
+                "nvt": {
+                    "oid": "1.2", "name": "OpenSSH",
+                    "epss": {
+                        "maxEpss": {"score": 0.91, "percentile": 98.0, "cve": "CVE-2026-1"},
+                        "maxSeverity": {"score": 0.72, "percentile": 90.0, "cve": "CVE-2026-2", "severity": 9.8}
+                    }
+                }
+            }),
+            "results",
+            "qod",
+        ),
     ];
     for (page, row, _, _) in &pages {
         Mock::given(method("GET"))
@@ -933,6 +949,7 @@ async fn report_pages_keep_their_spec_row_keys() {
         mcp.get_report_vulnerabilities(Parameters(params()))
             .await
             .unwrap(),
+        mcp.get_report_results(Parameters(params())).await.unwrap(),
     ];
     for ((_, _, out_key, kept_key), result) in pages.iter().zip(results.iter()) {
         let json = assert_ok(result);
@@ -944,6 +961,12 @@ async fn report_pages_keep_their_spec_row_keys() {
     }
     // The hosts row must have dropped the unknown `extra` key.
     assert!(assert_ok(&results[0])["hosts"][0].get("extra").is_none());
+    // Ordinary report results retain both new additive fields for triage.
+    assert_eq!(assert_ok(&results[8])["results"][0]["qod"]["value"], 95);
+    assert_eq!(
+        assert_ok(&results[8])["results"][0]["nvt"]["epss"]["maxEpss"]["score"],
+        0.91
+    );
 }
 
 #[tokio::test]

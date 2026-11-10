@@ -4,7 +4,9 @@ mod support;
 
 use gvm_mcp::mcp::GvmMcpServer;
 use gvm_mcp::mcp::tools::common::{FilterParams, GetByIdParams, ListParams};
-use gvm_mcp::mcp::tools::identity::{CreateUserParams, UpdateUserSettingParams};
+use gvm_mcp::mcp::tools::identity::{
+    AuthenticationType, CreateUserParams, UpdateUserSettingParams,
+};
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{CallToolResult, ContentBlock};
 use support::config_with_args;
@@ -85,7 +87,7 @@ async fn create_user_sends_roles_and_auth_type() {
             password: Some("s3cret!".into()),
             hosts: None,
             roles: Some(vec!["r-observer".into()]),
-            authentication_type: Some("file".into()),
+            authentication_type: Some(AuthenticationType::File),
         }))
         .await
         .unwrap();

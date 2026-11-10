@@ -30,7 +30,7 @@ Create a credential for authenticated scans. `type` selects the kind (up, usk, c
 | `privacy_algorithm` | string | no | SNMPv3 privacy algorithm: aes or des |
 | `privacy_password` | string | no | SNMPv3 privacy password |
 | `private_key` | string | no | PEM private key (usk) |
-| `type` | string | yes | Credential kind: up (username+password), usk (username+SSH key), cc (client certificate), pw (password only), snmp (v1/v2c), snmpv3, or store-backed cs_up, cs_usk, cs_cc, cs_pw, cs_pgp, cs_smime, cs_snmp |
+| `type` | string (`cc`, `pw`, `snmp`, `snmpv3`, `up`, `usk`, `cs_cc`, `cs_pw`, `cs_pgp`, `cs_smime`, `cs_snmp`, `cs_up`, `cs_usk`) | yes | Credential kind: up (username+password), usk (username+SSH key), cc (client certificate), pw (password only), snmp (v1/v2c), snmpv3, or store-backed cs_up, cs_usk, cs_cc, cs_pw, cs_pgp, cs_smime, cs_snmp |
 | `vault_id` | string | no | Write-only external vault identifier (cs_* types) |
 
 ### `openvas_delete_credential`

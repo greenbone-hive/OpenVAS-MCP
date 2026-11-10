@@ -2,6 +2,7 @@
 
 use rmcp::model::{CallToolResult, ContentBlock};
 use rmcp::{ErrorData as McpError, schemars};
+use serde::de::Error as _;
 use serde::{Deserialize, Serialize};
 
 use crate::gateway::GatewayClient;
@@ -138,6 +139,20 @@ pub fn json_result(value: &impl Serialize) -> Result<CallToolResult, McpError> {
     Ok(CallToolResult::success(vec![ContentBlock::text(text)]))
 }
 
+/// Deserialize an optional field while rejecting an explicitly supplied null.
+/// Missing fields are handled by `#[serde(default)]` before this function runs.
+pub(crate) fn deserialize_optional_non_null<'de, D, T>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer)?
+        .map(Some)
+        .ok_or_else(|| D::Error::custom("field must not be null; omit it to leave it unset"))
+}
+
 /// Builder for gateway JSON request bodies. Tool arguments are snake_case;
 /// gateway bodies are camelCase — every `set*` call names the gateway key
 /// explicitly, and unset optionals are omitted entirely so the gateway's
@@ -154,6 +169,12 @@ impl Body {
     pub fn set(mut self, key: &str, value: impl Into<serde_json::Value>) -> Self {
         self.0.insert(key.to_string(), value.into());
         self
+    }
+
+    /// Set a key from a serializable value such as a contract enum.
+    pub fn set_json<T: Serialize>(self, key: &str, value: T) -> Self {
+        let value = serde_json::to_value(value).expect("tool arguments serialize");
+        self.set(key, value)
     }
 
     pub fn set_opt(self, key: &str, value: Option<impl Into<serde_json::Value>>) -> Self {

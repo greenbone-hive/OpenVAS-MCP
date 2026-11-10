@@ -42,6 +42,8 @@ const RESULT_ROW_KEYS: &[&str] = &[
     "port",
     "severity",
     "threat",
+    "qod",
+    "nvt",
     "occurrences",
 ];
 const VULNERABILITY_ROW_KEYS: &[&str] = &[

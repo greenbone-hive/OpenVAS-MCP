@@ -15,6 +15,8 @@ const ROW_KEYS: &[&str] = &[
     "port",
     "severity",
     "threat",
+    "qod",
+    "nvt",
     "occurrences",
 ];
 
