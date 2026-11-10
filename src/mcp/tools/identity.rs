@@ -7,13 +7,14 @@
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::CallToolResult;
 use rmcp::{ErrorData as McpError, schemars, tool, tool_router};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::mcp::server::GvmMcpServer;
 
 use super::common::{
     Body, DeleteParams, FilterParams, GetByIdParams, ListParams, create_resource, delete_resource,
-    get_passthrough, list_summarized, list_summarized_query, update_resource,
+    deserialize_optional_non_null, get_passthrough, list_summarized, list_summarized_query,
+    update_resource,
 };
 
 const USER_ROW_KEYS: &[&str] = &["id", "name", "roles", "groups", "hostsAllow", "inUse"];
@@ -27,6 +28,15 @@ const PERMISSION_ROW_KEYS: &[&str] = &[
     "resource",
 ];
 const SETTING_ROW_KEYS: &[&str] = &["id", "name", "value"];
+
+/// Authentication backends accepted by user create/update requests.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AuthenticationType {
+    File,
+    LdapConnect,
+    RadiusConnect,
+}
 
 /// Arguments for `openvas_create_user`.
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -42,7 +52,9 @@ pub struct CreateUserParams {
     /// Role UUIDs to assign
     pub roles: Option<Vec<String>>,
     /// Authentication backend: file, ldap_connect or radius_connect
-    pub authentication_type: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_optional_non_null")]
+    #[schemars(with = "AuthenticationType")]
+    pub authentication_type: Option<AuthenticationType>,
 }
 
 /// Arguments for `openvas_update_user`.
@@ -58,7 +70,9 @@ pub struct UpdateUserParams {
     pub hosts: Option<String>,
     /// Replacement role UUIDs (omitting leaves roles unchanged)
     pub roles: Option<Vec<String>>,
-    pub authentication_type: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_optional_non_null")]
+    #[schemars(with = "AuthenticationType")]
+    pub authentication_type: Option<AuthenticationType>,
 }
 
 /// Arguments for `openvas_create_group` / `openvas_create_role`.
@@ -174,7 +188,7 @@ impl GvmMcpServer {
             .set_opt("password", params.password)
             .set_opt("hosts", params.hosts)
             .set_opt("roles", params.roles)
-            .set_opt("authenticationType", params.authentication_type);
+            .set_opt_json("authenticationType", params.authentication_type);
         create_resource(self.gateway(), "users", body, "creating the user").await
     }
 
@@ -194,7 +208,7 @@ impl GvmMcpServer {
             .set_opt("password", params.password)
             .set_opt("hosts", params.hosts)
             .set_opt("roles", params.roles)
-            .set_opt("authenticationType", params.authentication_type);
+            .set_opt_json("authenticationType", params.authentication_type);
         update_resource(
             self.gateway(),
             &["users", &params.id],

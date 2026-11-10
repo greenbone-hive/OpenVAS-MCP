@@ -19,12 +19,12 @@ Create an alert binding an event, condition and method (e.g. email on task_run_s
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `comment` | string | no | Optional comment |
-| `condition` | string | yes | Trigger condition: always, filter_count_at_least, filter_count_changed, severity_at_least or severity_changed |
+| `condition` | string (`always`, `filter_count_at_least`, `filter_count_changed`, `severity_at_least`, `severity_changed`) | yes | Trigger condition: always, filter_count_at_least, filter_count_changed, severity_at_least or severity_changed |
 | `condition_data` | object<string, string> | no | Condition parameters, e.g. {"severity": "7.0"} |
-| `event` | string | yes | Trigger event: task_run_status_changed, updated_secinfo or new_secinfo |
+| `event` | string (`task_run_status_changed`, `updated_secinfo`, `new_secinfo`) | yes | Trigger event: task_run_status_changed, updated_secinfo or new_secinfo |
 | `event_data` | object<string, string> | no | Event parameters, e.g. {"status": "Done"} |
 | `filter_id` | string | no | UUID of a filter restricting which results the alert reports |
-| `method` | string | yes | Delivery method: email, http_get, scp, send_email, smb, snmp, sourcefire_connector, start_task, syslog, tippingpoint, verinice_ce, verinice_net or alemba |
+| `method` | string (`email`, `http_get`, `scp`, `send_email`, `smb`, `snmp`, `sourcefire_connector`, `start_task`, `syslog`, `tippingpoint`, `verinice_ce`, `verinice_net`, `alemba`) | yes | Delivery method: email, http_get, scp, send_email, smb, snmp, sourcefire_connector, start_task, syslog, tippingpoint, verinice_ce, verinice_net or alemba |
 | `method_data` | object<string, string> | no | Method parameters, e.g. {"to_address": "sec@example.com"} |
 | `name` | string | yes | Alert name |
 

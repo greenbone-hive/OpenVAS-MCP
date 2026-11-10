@@ -5,9 +5,9 @@
 mod support;
 
 use gvm_mcp::mcp::GvmMcpServer;
-use gvm_mcp::mcp::tools::alerts::CreateAlertParams;
+use gvm_mcp::mcp::tools::alerts::{AlertCondition, AlertEvent, AlertMethod, CreateAlertParams};
 use gvm_mcp::mcp::tools::common::{DeleteParams, GetByIdParams};
-use gvm_mcp::mcp::tools::credentials::CreateCredentialParams;
+use gvm_mcp::mcp::tools::credentials::{CreateCredentialParams, CredentialType};
 use gvm_mcp::mcp::tools::notes::CreateNoteParams;
 use gvm_mcp::mcp::tools::overrides::CreateOverrideParams;
 use gvm_mcp::mcp::tools::targets::{CreateTargetParams, UpdateTargetParams};
@@ -184,7 +184,7 @@ async fn create_credential_maps_type_key() {
     let result = mcp
         .create_credential(Parameters(CreateCredentialParams {
             name: "root-ssh".into(),
-            credential_type: "up".into(),
+            credential_type: CredentialType::Up,
             comment: None,
             login: Some("root".into()),
             password: Some("hunter2".into()),
@@ -210,9 +210,9 @@ async fn create_alert_sends_data_maps() {
         .and(path("/api/v1/alerts"))
         .and(body_json(serde_json::json!({
             "name": "mail on done",
-            "event": "Task run status changed",
-            "condition": "Always",
-            "method": "Email",
+            "event": "task_run_status_changed",
+            "condition": "always",
+            "method": "email",
             "eventData": {"status": "Done"},
             "methodData": {"to_address": "sec@example.com"}
         })))
@@ -224,9 +224,9 @@ async fn create_alert_sends_data_maps() {
     let result = mcp
         .create_alert(Parameters(CreateAlertParams {
             name: "mail on done".into(),
-            event: "Task run status changed".into(),
-            condition: "Always".into(),
-            method: "Email".into(),
+            event: AlertEvent::TaskRunStatusChanged,
+            condition: AlertCondition::Always,
+            method: AlertMethod::Email,
             comment: None,
             event_data: Some([("status".to_string(), "Done".to_string())].into()),
             condition_data: None,
